@@ -1,0 +1,265 @@
+/**********************************************************/
+/*Script Name: Relias Healthcare Sample Script
+/*Author: Celest Andrade
+/*Creation Date: 2022.07.20
+/*********************************************************/
+
+-- Note: Some of the data used in this script was taken from the Relias Healthcare website. 
+-- The provider hire data and salary data are not actual.
+
+/****************/
+/*Create Tables*/
+/**************/
+
+CREATE TABLE facilities (
+facility_id INTEGER PRIMARY KEY,
+facility_name VARCHAR(75),
+facility_address TEXT,
+facility_city VARCHAR(25),
+facility_state VARCHAR(2),
+facility_zip INTEGER);
+
+CREATE TABLE providers (
+provider_id SERIAL PRIMARY KEY,
+first_name VARCHAR(25),
+last_name VARCHAR(50),
+title VARCHAR(25),
+facility_id INTEGER,
+hire_date DATE,
+salary INTEGER);
+
+/***************************/
+/*Establishing Foreign Keys*/
+/*************************/
+
+ALTER TABLE providers
+ADD CONSTRAINT fk_facility
+FOREIGN KEY(facility_id)
+REFERENCES facilities(facility_id);
+
+/*************************************/
+/*Insert Data Into Facilitites Table*/
+/***********************************/
+
+INSERT INTO facilities
+VALUES
+(101, 'Forrest General Hospital', '6051 US 49', 'Hattiesburg', 'MS', 39401),
+(102, 'North Mississippi Medical Center Amory', '1105 Earl Frye Blvd', 'Amory', 'MS', 38821),
+(103, 'North Mississippi Medical Center Pontotoc', '176 S Main St', 'Pontotoc', 'MS', 38863),
+(104, 'North Mississippi Medical Center Tupelo', '830 S Gloster St', 'Tupelo', 'MS', 38801),
+(105, 'North Mississippi Medical Center West Point', '150 Medical Center Dr', 'West Point', 'MS', 39773),
+(106, 'DCH Fayette', '1653 Temple Ave N', 'Fayette', 'AL', 35555),
+(107, 'DCH Northport', '2700 Hospital Dr', 'Northport', 'AL', 35476),
+(108, 'DCH Regional Medical Center', '809 University Blvd E', 'Tuscaloosa', 'AL', 35401),
+(109, 'North Mississippi Medical Center Hamilton', '1256 Military St S', 'Hamilton', 'AL', 35570);
+
+SELECT * FROM facilities;
+
+facility_id |                facility_name                |   facility_address    | facility_city | facility_state | facility_zip
+-------------+---------------------------------------------+-----------------------+---------------+----------------+--------------
+        101 | Forrest General Hospital                    | 6051 US 49            | Hattiesburg   | MS             |        39401
+        102 | North Mississippi Medical Center Amory      | 1105 Earl Frye Blvd   | Amory         | MS             |        38821
+        103 | North Mississippi Medical Center Pontotoc   | 176 S Main St         | Pontotoc      | MS             |        38863
+        104 | North Mississippi Medical Center Tupelo     | 830 S Gloster St      | Tupelo        | MS             |        38801
+        105 | North Mississippi Medical Center West Point | 150 Medical Center Dr | West Point    | MS             |        39773
+        106 | DCH Fayette                                 | 1653 Temple Ave N     | Fayette       | AL             |        35555
+        107 | DCH Northport                               | 2700 Hospital Dr      | Northport     | AL             |        35476
+        108 | DCH Regional Medical Center                 | 809 University Blvd E | Tuscaloosa    | AL             |        35401
+        109 | North Mississippi Medical Center Hamilton   | 1256 Military St S    | Hamilton      | AL             |        35570
+
+/***********************************/
+/*Insert Data Into Providers Table*/
+/*********************************/
+
+INSERT INTO providers (first_name, last_name, title, facility_id, hire_date, salary)
+VALUES
+('Adeniyi', 'Koiki', 'MD', 104, '2021-12-16', 200000),
+('Matthew', 'Harris', 'FNP', 101, '2018-02-07', 105000),
+('Heather', 'Evans', 'DO', 101, '2020-09-01', 168000),
+('Griffen', 'Sharpe', 'MD', 106, '2022-01-20', 180000),
+('Malorie', 'Devaughn', 'ACNPC', 109, '2021-01-31', 98000),
+('Cole', 'Young', 'MD', 101, '2022-07-01', 168000),
+('Christopher', 'Billsby', 'DO', 105, '2019-03-21', 177000),
+('Jimmy', 'Tu', 'MD', 109, '2020-09-05', 204000),
+('Christopher', 'Mann', 'MD', 103, '2020-05-27', 172000),
+('Michael', 'Farmer', 'DO', 102, '2018-12-09', 150000),
+('Jordan', 'Steele', 'DO', 101, '2022-03-02', 166000),
+('John', 'Newcomb', 'MD', 106, '2019-01-30', 180000),
+('Courtney', 'Sessums', 'NP', 107, '2021-06-15', 110000),
+('Kiley', 'Shafer', 'MD', 103, '2022-08-01', 182000),
+('Adrian', 'Roberts', 'CRNP', 109, '2018-03-24', 95000),
+('Reid', 'Gaylon', 'CRNP', 106, '2020-10-16', 99000),
+('Hannah', 'Smith', 'PA', 106, '2021-09-28', 120000),
+('Michael', 'Gleason', 'MD', 101, '2021-07-12', 175000),
+('Lisa', 'Leek', 'MD', 109, '2022-01-01', 210000),
+('Christie', 'Ladner', 'NP', 102, '2021-04-09', 89000),
+('Kathy', 'Richards', 'NP', 102, '2019-08-28', 96000),
+('Sarah', 'Bryan', 'MD', 108, '2021-04-25', 162000),
+('Hiliary', 'Glover', 'DNP', 105, '2022-03-12', 103000),
+('Nathan', 'Hadley', 'MD', 108, '2021-10-01', 149000),
+('Charles', 'Frye', 'MD', 108, '2018-06-28', 153000);
+
+SELECT * FROM providers;
+
+provider_id | first_name  | last_name | title | facility_id | hire_date  | salary
+-------------+-------------+-----------+-------+-------------+------------+--------
+          1 | Adeniyi     | Koiki     | MD    |         104 | 2021-12-16 | 200000
+          2 | Matthew     | Harris    | FNP   |         101 | 2018-02-07 | 105000
+          3 | Heather     | Evans     | DO    |         101 | 2020-09-01 | 168000
+          4 | Griffen     | Sharpe    | MD    |         106 | 2022-01-20 | 180000
+          5 | Malorie     | Devaughn  | ACNPC |         109 | 2021-01-31 |  98000
+          6 | Cole        | Young     | MD    |         101 | 2022-07-01 | 168000
+          7 | Christopher | Billsby   | DO    |         105 | 2019-03-21 | 177000
+          8 | Jimmy       | Tu        | MD    |         109 | 2020-09-05 | 204000
+          9 | Christopher | Mann      | MD    |         103 | 2020-05-27 | 172000
+         10 | Michael     | Farmer    | DO    |         102 | 2018-12-09 | 150000
+         11 | Jordan      | Steele    | DO    |         101 | 2022-03-02 | 166000
+         12 | John        | Newcomb   | MD    |         106 | 2019-01-30 | 180000
+         13 | Courtney    | Sessums   | NP    |         107 | 2021-06-15 | 110000
+         14 | Kiley       | Shafer    | MD    |         103 | 2022-08-01 | 182000
+         15 | Adrian      | Roberts   | CRNP  |         109 | 2018-03-24 |  95000
+         16 | Reid        | Gaylon    | CRNP  |         106 | 2020-10-16 |  99000
+         17 | Hannah      | Smith     | PA    |         106 | 2021-09-28 | 120000
+         18 | Michael     | Gleason   | MD    |         101 | 2021-07-12 | 175000
+         19 | Lisa        | Leek      | MD    |         109 | 2022-01-01 | 210000
+         20 | Christie    | Ladner    | NP    |         102 | 2021-04-09 |  89000
+         21 | Kathy       | Richards  | NP    |         102 | 2019-08-28 |  96000
+         22 | Sarah       | Bryan     | MD    |         108 | 2021-04-25 | 162000
+         23 | Hiliary     | Glover    | DNP   |         105 | 2022-03-12 | 103000
+         24 | Nathan      | Hadley    | MD    |         108 | 2021-10-01 | 149000
+         25 | Charles     | Frye      | MD    |         108 | 2018-06-28 | 153000
+
+/*******************************/
+/*Queries for data exploration*/
+/*****************************/
+
+-- Query 01: Using DISTINCT to find unique values.
+
+SELECT DISTINCT facility_name
+FROM facilities
+ORDER BY facility_name;
+
+-- Result: Below shows the distinct values in the facility_name column.
+
+                facility_name
+---------------------------------------------
+ DCH Fayette
+ DCH Northport
+ DCH Regional Medical Center
+ Forrest General Hospital
+ North Mississippi Medical Center Amory
+ North Mississippi Medical Center Hamilton
+ North Mississippi Medical Center Pontotoc
+ North Mississippi Medical Center Tupelo
+ North Mississippi Medical Center West Point
+
+-- Query 02: Using an aggregate function.
+
+SELECT COUNT(title) FROM providers WHERE title LIKE 'NP';
+
+-- Result: There are 3 providers with the title NP in the providers table.
+
+count
+-------
+    3
+
+-- Query 03: Filtering data by using clauses.
+
+SELECT * FROM providers
+WHERE salary > 175000 AND title LIKE 'MD'
+ORDER BY salary DESC;
+
+-- Result: See below for a list of providers (MD) that make over 175,000 salary.
+
+provider_id | first_name | last_name | title | facility_id | hire_date  | salary
+-------------+------------+-----------+-------+-------------+------------+--------
+         19 | Lisa       | Leek      | MD    |         109 | 2022-01-01 | 210000
+          8 | Jimmy      | Tu        | MD    |         109 | 2020-09-05 | 204000
+          1 | Adeniyi    | Koiki     | MD    |         104 | 2021-12-16 | 200000
+         14 | Kiley      | Shafer    | MD    |         103 | 2022-08-01 | 182000
+          4 | Griffen    | Sharpe    | MD    |         106 | 2022-01-20 | 180000
+         12 | John       | Newcomb   | MD    |         106 | 2019-01-30 | 180000
+
+
+-- Query 04: Using a boolean operator.
+
+SELECT * FROM facilities
+WHERE facility_state NOT IN ('MS');
+
+-- Result: See below for a list of facilities that are not in the state of Mississippi.
+
+ facility_id |               facility_name               |   facility_address    | facility_city | facility_state | facility_zip
+-------------+-------------------------------------------+-----------------------+---------------+----------------+--------------
+         106 | DCH Fayette                               | 1653 Temple Ave N     | Fayette       | AL             |        35555
+         107 | DCH Northport                             | 2700 Hospital Dr      | Northport     | AL             |        35476
+         108 | DCH Regional Medical Center               | 809 University Blvd E | Tuscaloosa    | AL             |        35401
+         109 | North Mississippi Medical Center Hamilton | 1256 Military St S    | Hamilton      | AL             |        35570
+
+-- Query 05: Using a comparison operator.
+
+SELECT first_name, last_name, title, salary, hire_date
+FROM providers
+WHERE salary >=120000 AND salary <=150000;
+
+-- Result: Below shows the providers that make between 120,000 and 150,000 salary.
+
+first_name | last_name | title | salary | hire_date
+------------+-----------+-------+--------+------------
+ Michael    | Farmer    | DO    | 150000 | 2018-12-09
+ Hannah     | Smith     | PA    | 120000 | 2021-09-28
+ Nathan     | Hadley    | MD    | 149000 | 2021-10-01
+
+
+-- Query 06: Retrieving data from multiple tables using JOIN.
+
+SELECT * FROM providers
+INNER JOIN facilities
+on providers.facility_id=facilities.facility_id;
+
+-- Result: See below for the result.
+
+ provider_id | first_name  | last_name | title | facility_id | hire_date  | salary | facility_id |                facility_name                |   facility_address    | facility_city | facility_state | facility_zip
+-------------+-------------+-----------+-------+-------------+------------+--------+-------------+---------------------------------------------+-----------------------+---------------+----------------+--------------
+           1 | Adeniyi     | Koiki     | MD    |         104 | 2021-12-16 | 200000 |         104 | North Mississippi Medical Center Tupelo     | 830 S Gloster St      | Tupelo        | MS             |        38801
+           2 | Matthew     | Harris    | FNP   |         101 | 2018-02-07 | 105000 |         101 | Forrest General Hospital                    | 6051 US 49            | Hattiesburg   | MS             |        39401
+           3 | Heather     | Evans     | DO    |         101 | 2020-09-01 | 168000 |         101 | Forrest General Hospital                    | 6051 US 49            | Hattiesburg   | MS             |        39401
+           4 | Griffen     | Sharpe    | MD    |         106 | 2022-01-20 | 180000 |         106 | DCH Fayette                                 | 1653 Temple Ave N     | Fayette       | AL             |        35555
+           5 | Malorie     | Devaughn  | ACNPC |         109 | 2021-01-31 |  98000 |         109 | North Mississippi Medical Center Hamilton   | 1256 Military St S    | Hamilton      | AL             |        35570
+           6 | Cole        | Young     | MD    |         101 | 2022-07-01 | 168000 |         101 | Forrest General Hospital                    | 6051 US 49            | Hattiesburg   | MS             |        39401
+           7 | Christopher | Billsby   | DO    |         105 | 2019-03-21 | 177000 |         105 | North Mississippi Medical Center West Point | 150 Medical Center Dr | West Point    | MS             |        39773
+           8 | Jimmy       | Tu        | MD    |         109 | 2020-09-05 | 204000 |         109 | North Mississippi Medical Center Hamilton   | 1256 Military St S    | Hamilton      | AL             |        35570
+           9 | Christopher | Mann      | MD    |         103 | 2020-05-27 | 172000 |         103 | North Mississippi Medical Center Pontotoc   | 176 S Main St         | Pontotoc      | MS             |        38863
+          10 | Michael     | Farmer    | DO    |         102 | 2018-12-09 | 150000 |         102 | North Mississippi Medical Center Amory      | 1105 Earl Frye Blvd   | Amory         | MS             |        38821
+          11 | Jordan      | Steele    | DO    |         101 | 2022-03-02 | 166000 |         101 | Forrest General Hospital                    | 6051 US 49            | Hattiesburg   | MS             |        39401
+          12 | John        | Newcomb   | MD    |         106 | 2019-01-30 | 180000 |         106 | DCH Fayette                                 | 1653 Temple Ave N     | Fayette       | AL             |        35555
+          13 | Courtney    | Sessums   | NP    |         107 | 2021-06-15 | 110000 |         107 | DCH Northport                               | 2700 Hospital Dr      | Northport     | AL             |        35476
+          14 | Kiley       | Shafer    | MD    |         103 | 2022-08-01 | 182000 |         103 | North Mississippi Medical Center Pontotoc   | 176 S Main St         | Pontotoc      | MS             |        38863
+          15 | Adrian      | Roberts   | CRNP  |         109 | 2018-03-24 |  95000 |         109 | North Mississippi Medical Center Hamilton   | 1256 Military St S    | Hamilton      | AL             |        35570
+          16 | Reid        | Gaylon    | CRNP  |         106 | 2020-10-16 |  99000 |         106 | DCH Fayette                                 | 1653 Temple Ave N     | Fayette       | AL             |        35555
+          17 | Hannah      | Smith     | PA    |         106 | 2021-09-28 | 120000 |         106 | DCH Fayette                                 | 1653 Temple Ave N     | Fayette       | AL             |        35555
+          18 | Michael     | Gleason   | MD    |         101 | 2021-07-12 | 175000 |         101 | Forrest General Hospital                    | 6051 US 49            | Hattiesburg   | MS             |        39401
+          19 | Lisa        | Leek      | MD    |         109 | 2022-01-01 | 210000 |         109 | North Mississippi Medical Center Hamilton   | 1256 Military St S    | Hamilton      | AL             |        35570
+          20 | Christie    | Ladner    | NP    |         102 | 2021-04-09 |  89000 |         102 | North Mississippi Medical Center Amory      | 1105 Earl Frye Blvd   | Amory         | MS             |        38821
+          21 | Kathy       | Richards  | NP    |         102 | 2019-08-28 |  96000 |         102 | North Mississippi Medical Center Amory      | 1105 Earl Frye Blvd   | Amory         | MS             |        38821
+          22 | Sarah       | Bryan     | MD    |         108 | 2021-04-25 | 162000 |         108 | DCH Regional Medical Center                 | 809 University Blvd E | Tuscaloosa    | AL             |        35401
+          23 | Hiliary     | Glover    | DNP   |         105 | 2022-03-12 | 103000 |         105 | North Mississippi Medical Center West Point | 150 Medical Center Dr | West Point    | MS             |        39773
+          24 | Nathan      | Hadley    | MD    |         108 | 2021-10-01 | 149000 |         108 | DCH Regional Medical Center                 | 809 University Blvd E | Tuscaloosa    | AL             |        35401
+          25 | Charles     | Frye      | MD    |         108 | 2018-06-28 | 153000 |         108 | DCH Regional Medical Center                 | 809 University Blvd E | Tuscaloosa    | AL             |        35401
+
+-- Query 07: Retrieving data from multiple tables and selecting certain columns using JOIN.
+
+SELECT providers.first_name, providers.last_name, providers.title, providers.salary, facilities.facility_name
+FROM facilities
+INNER JOIN providers
+on facilities.facility_id=providers.facility_id
+WHERE facility_name LIKE 'North Mississippi Medical Center Amory'
+ORDER BY providers.salary ASC;
+
+-- Result: The below result shows the providers and their salaries for those that work at North Mississippi Medical Center Amory.
+
+first_name | last_name | title | salary |             facility_name
+------------+-----------+-------+--------+----------------------------------------
+Christie   | Ladner    | NP    |  89000 | North Mississippi Medical Center Amory
+Kathy      | Richards  | NP    |  96000 | North Mississippi Medical Center Amory
+Michael    | Farmer    | DO    | 150000 | North Mississippi Medical Center Amory
+
