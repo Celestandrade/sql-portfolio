@@ -1,0 +1,318 @@
+/********************************************/
+/*** Script Name: Stroke Prediction Data Analysis
+/*** Author: Celest Andrade
+/*** Creation Date: 2022.11.01
+/*****************************************/
+
+-- Programming tools used: SQL (PostgreSQL & pgAdmin 4)
+-- Note: This public dataset was retrieved from Kaggle
+at https://www.kaggle.com/datasets/fedesoriano/stroke-prediction-dataset
+
+-- Context: This dataset is used to predict whether a patient is likely to get stroke based on the input parameters like
+gender, age, various diseases, and smoking status. Each row in the data provides relevant information about the patient.
+
+-- Attribute information:
+1) id: unique identifier
+2) gender: 'Male', 'Female', or 'Other'
+3) age: age of the patient
+4) hypertension: 0 if the patient does not have hypertension, 1 if the patient does have hypertension
+5) heart_disease: 0 if the patient does not have any heart diseases, 1 if the patient does have a heart disease
+6) ever_married: 'No', or 'Yes'
+7) work_type: 'children', 'govt_job', 'never_worked', 'private', or 'self-employed'
+8) residence_type: 'rural', or 'urban'
+9) avg_glucose_level: average glucose level in blood
+10) bmi: body mass index
+11) smoking_status: 'formerly smoked', 'never smoked', 'smokes', or 'unknown'
+12) stroke: 0 if the patient has not had a stroke, 1 if the patient has had a stroke
+
+---------- BEGIN SQL ----------
+
+/* Create Table */
+
+CREATE TABLE stroke_data (
+id integer PRIMARY KEY,
+gender text,
+age numeric,
+hypertension integer,
+heart_disease integer,
+ever_married text,
+work_type text,
+residence_type text,
+avg_glucose_level numeric,
+bmi numeric,
+smoking_status text,
+stroke integer);
+
+/* Describe Table */
+
+\d stroke_data
+
+Table "public.stroke_data"
+Column            |  Type   | Collation | Nullable | Default
+-------------------+---------+-----------+----------+---------
+id                | integer |           | not null |
+gender            | text    |           |          |
+age               | numeric |           |          |
+hypertension      | integer |           |          |
+heart_disease     | integer |           |          |
+ever_married      | text    |           |          |
+work_type         | text    |           |          |
+residence_type    | text    |           |          |
+avg_glucose_level | numeric |           |          |
+bmi               | numeric |           |          |
+smoking_status    | text    |           |          |
+stroke            | integer |           |          |
+Indexes:
+"stroke_data_pkey" PRIMARY KEY, btree (id)
+
+/* Import Data */
+
+COPY stroke_data
+FROM '/Users/celestandrade/Desktop/stroke_data.csv'
+WITH (FORMAT CSV, HEADER);
+
+/* Select Count */
+
+SELECT COUNT(*) FROM stroke_data;
+
+count
+-------
+ 5110
+
+ /* Finding Null Values */
+
+SELECT
+SUM(CASE WHEN id IS NULL THEN 1 ELSE 0 END) AS null_id,
+SUM(CASE WHEN gender IS NULL THEN 1 ELSE 0 END) AS null_gender,
+SUM(CASE WHEN age IS NULL THEN 1 ELSE 0 END) AS null_age,
+SUM(CASE WHEN hypertension IS NULL THEN 1 ELSE 0 END) AS null_hypertension,
+SUM(CASE WHEN heart_disease IS NULL THEN 1 ELSE 0 END) AS null_heart_disease,
+SUM(CASE WHEN ever_married IS NULL THEN 1 ELSE 0 END) AS null_ever_married,
+SUM(CASE WHEN work_type IS NULL THEN 1 ELSE 0 END) AS null_work_type,
+SUM(CASE WHEN residence_type IS NULL THEN 1 ELSE 0 END) AS null_residence_type,
+SUM(CASE WHEN avg_glucose_level IS NULL THEN 1 ELSE 0 END) AS null_avg_glucose_level,
+SUM(CASE WHEN bmi IS NULL THEN 1 ELSE 0 END) AS null_bmi,
+SUM(CASE WHEN smoking_status IS NULL THEN 1 ELSE 0 END) AS null_smoking_status,
+SUM(CASE WHEN stroke IS NULL THEN 1 ELSE 0 END) AS null_stroke
+FROM stroke_data;
+
+null_id | null_gender | null_age | null_hypertension | null_heart_disease | null_ever_married | null_work_type | null_residence_type | null_avg_glucose_level | null_bmi | null_smoking_status | null_stroke
+---------+-------------+----------+-------------------+--------------------+-------------------+----------------+---------------------+------------------------+----------+---------------------+-------------
+      0 |           0 |        0 |                 0 |                  0 |                 0 |              0 |                   0 |                      0 |      201 |                   0 |           0
+
+- There are 201 null values in the bmi data column.
+
+/ * Replacing null values */
+
+- I will replace the null values in the bmi column with the avg bmi of the entire dataset.
+
+- Query to find avg bmi:
+
+avg
+---------------------
+28.8932369117946629
+
+- Query to replace the null values with 28.9 (the avg bmi):
+
+UPDATE stroke_data
+SET bmi = '28.9'
+WHERE bmi IS NULL;
+
+UPDATE 201
+
+/* Select From Table */
+
+SELECT * FROM stroke_data LIMIT 10;
+
+  id   | gender | age | hypertension | heart_disease | ever_married |   work_type   | residence_type | avg_glucose_level | bmi  | smoking_status  | stroke
+-------+--------+-----+--------------+---------------+--------------+---------------+----------------+-------------------+------+-----------------+--------
+  9046 | Male   |  67 |            0 |             1 | Yes          | Private       | Urban          |            228.69 | 36.6 | formerly smoked |      1
+ 31112 | Male   |  80 |            0 |             1 | Yes          | Private       | Rural          |            105.92 | 32.5 | never smoked    |      1
+ 60182 | Female |  49 |            0 |             0 | Yes          | Private       | Urban          |            171.23 | 34.4 | smokes          |      1
+  1665 | Female |  79 |            1 |             0 | Yes          | Self-employed | Rural          |            174.12 |   24 | never smoked    |      1
+ 56669 | Male   |  81 |            0 |             0 | Yes          | Private       | Urban          |            186.21 |   29 | formerly smoked |      1
+ 53882 | Male   |  74 |            1 |             1 | Yes          | Private       | Rural          |             70.09 | 27.4 | never smoked    |      1
+ 10434 | Female |  69 |            0 |             0 | No           | Private       | Urban          |             94.39 | 22.8 | never smoked    |      1
+ 60491 | Female |  78 |            0 |             0 | Yes          | Private       | Urban          |             58.57 | 24.2 | Unknown         |      1
+ 12109 | Female |  81 |            1 |             0 | Yes          | Private       | Rural          |             80.43 | 29.7 | never smoked    |      1
+ 12095 | Female |  61 |            0 |             1 | Yes          | Govt_job      | Rural          |            120.46 | 36.8 | smokes          |      1
+
+- The above query result is limited to 10 rows.
+
+/* Finding the number of participants in this dataset by gender */
+
+SELECT gender, COUNT(gender)
+AS gender_participation_total,
+COUNT(gender) * 100 / SUM(COUNT(gender)) OVER()
+AS PERCENT FROM stroke_data
+GROUP BY gender;
+
+gender | gender_participation_total |        percent
+--------+----------------------------+------------------------
+Other  |                          1 | 0.01956947162426614481
+Male   |                       2115 |    41.3894324853228963
+Female |                       2994 |    58.5909980430528376
+
+/* What percentage of males in this dataset had a stroke? */
+
+SELECT gender, count(gender),
+(COUNT(gender) * 100.0) / (SELECT count(gender) FROM stroke_data WHERE gender = 'Male')
+AS percentage FROM stroke_data
+WHERE stroke = '1' and gender = 'Male'
+GROUP BY gender;
+
+gender | count |     percentage
+--------+-------+--------------------
+Male   |   108 | 5.1063829787234043
+
+- The result shows that about 5.1% of the males in the dataset have had a stroke.
+
+/* What percentage of females in this dataset had a stroke? */
+
+SELECT gender, count(gender),
+(COUNT(gender) * 100.0) / (SELECT count(gender) FROM stroke_data WHERE gender = 'Female')
+AS percentage FROM stroke_data
+WHERE stroke = '1' and gender = 'Female'
+GROUP BY gender;
+
+gender | count |     percentage
+--------+-------+--------------------
+Female |   141 | 4.7094188376753507
+
+- The result shows that about 4.7% of the females in the dataset have had a stroke.
+
+/* Does age have an influence on stroke? */
+
+SELECT age, COUNT(age)
+AS age_count
+FROM stroke_data
+WHERE stroke = 1
+GROUP BY age
+ORDER BY age_count DESC
+LIMIT 10;
+
+age | age_count
+-----+-----------
+ 78 |        21
+ 79 |        17
+ 80 |        17
+ 81 |        14
+ 57 |        11
+ 76 |        10
+ 74 |         9
+ 68 |         9
+ 82 |         9
+ 63 |         9
+
+- The above query result is limited to 10 rows.
+- We can see that patients with an age over 55 in the dataset are the majority that have had a stroke.
+
+SELECT count(age),
+(SELECT avg(age) FROM stroke_data) AS avg_age_all_patients,
+(SELECT avg(age) FROM stroke_data WHERE stroke = '0') AS avg_age_no_stroke,
+(SELECT avg(age) FROM stroke_data WHERE stroke = '1') AS avg_age_stroke
+FROM stroke_data;
+
+count | avg_age_all_patients |  avg_age_no_stroke  |   avg_age_stroke
+-------+----------------------+---------------------+---------------------
+ 5110 |  43.2266144814090020 | 41.9715449495988480 | 67.7281927710843373
+
+ - The average age of all of the patients in the dataset is about 43
+ - The average age of patients that have not had a stroke is about 42
+ - The average age of patients that have had a stroke is about 68
+ - These results prove that there is a correlation between age and stroke.
+
+ /* Does BMI have an influence on stroke? */
+
+- Note: The guide for BMI according to National Institute of Health (NIH):
+        Less than 18.5 is underweight
+        Between 18.5 and 24.9 is ideal
+        Between 25 and 29.9 is overweight
+        More than 30 is obesity
+
+SELECT count(bmi),
+(SELECT avg(bmi) FROM stroke_data) AS avg_bmi_all_patients,
+(SELECT avg(bmi) FROM stroke_data WHERE stroke = '0') AS avg_bmi_no_stroke,
+(SELECT avg(bmi) FROM stroke_data WHERE stroke = '1') AS avg_bmi_stroke
+FROM stroke_data;
+
+count | avg_bmi_all_patients |  avg_bmi_no_stroke  |   avg_bmi_stroke
+-------+----------------------+---------------------+---------------------
+ 5110 |  28.8935029354207436 | 28.8256120139888912 | 30.2188755020080321
+
+ - The average bmi of all of the patients in the dataset is about 28.89
+ - The average bmi of patients that have not had a stroke is about 28.82
+ - The average bmi of patients that have had a stroke is about 30.47
+ - These results prove that there is a correlation between bmi and stroke.
+
+/* Further analyzing BMI */
+
+- How many patients that have had a stroke are in each category of BMI (underweight, ideal, overweight, and obese)?
+
+SELECT count(bmi) AS total_count,
+(SELECT count(bmi) FROM stroke_data WHERE stroke = '1') AS stroke_count,
+(SELECT count(bmi) FROM stroke_data WHERE stroke = '1' AND bmi <= 18.5) AS bmi_underweight,
+(SELECT count(bmi) FROM stroke_data WHERE stroke = '1' AND (bmi >= 18.5 AND bmi <= 24.9)) AS bmi_ideal,
+(SELECT count(bmi) FROM stroke_data WHERE stroke = '1' AND (bmi >= 25.0 AND bmi <= 29.9)) AS bmi_overweight,
+(SELECT count(bmi) FROM stroke_data WHERE stroke = '1' AND bmi >= 30.0) AS bmi_obese
+FROM stroke_data;
+
+total_count | stroke_count | bmi_underweight | bmi_ideal | bmi_overweight | bmi_obese
+-------------+--------------+-----------------+-----------+----------------+-----------
+       5110 |          249 |               1 |        35 |            115 |        98
+
+ - Patients that have had a stroke are primarily in the overweight and obese category.
+
+ / * Measuring the correlation between 2 variables */
+
+ - Note: In order to do this, I will find the r value.
+         r value 0 means no relationship
+         r value .01 to .29 means a weak relationship
+         r value .30 to .59 means a moderate relationship
+         r value .60 to .99 means a strong to nearly perfect relationship
+         r value 1.0 means a perfect relationship
+
+ - I will measure the relationship between bmi and average glucose level in patients that have had a stroke for this example.
+
+ SELECT corr(avg_glucose_level, bmi)
+ AS bmi_glucose_r
+ FROM stroke_data
+ WHERE stroke = 1;
+
+bmi_glucose_r
+---------------------
+0.31572857902914603
+
+- This result shows that there is a moderate relationship between bmi and glucose levels.
+
+/* Predicting values with regression analysis */
+
+- Note: In order to do this, I will find the regression slope and y intercept.
+
+SELECT
+round(regr_slope(avg_glucose_level, bmi)::numeric, 2) AS slope,
+round(regr_intercept(avg_glucose_level, bmi)::numeric, 2) AS y_intercept
+FROM stroke_data
+WHERE stroke = 1;
+
+slope | y_intercept
+-------+-------------
+ 3.36 |       31.13
+
+- From this result we can predict that for every one-unit increase in bmi, we can expect a patient's glucose level to increase by 3.36.
+
+/* Finding the effect of an independent variable with r-squared */
+
+SELECT round(
+regr_r2(avg_glucose_level, bmi)::numeric, 3
+) AS r_squared
+FROM stroke_data
+WHERE stroke = 1;
+
+r_squared
+-----------
+    0.100
+
+- The r-squared value of 0.100 indicates that about 10 percent of the variation in glucose levels in patients that have had a stroke can be explained by bmi.
+
+---------- END SQL ----------
