@@ -1,0 +1,808 @@
+set ECHO on; 
+set SERVEROUTPUT on;
+
+/***************************************************************/
+/*Script Name: Library Database Design and Analysis
+/*Author: Celest Andrade
+/*Creation Date: 2020.04.22
+/***********************************************************/
+
+/*****************/
+/*Drop Sequences*/
+/***************/
+
+DROP SEQUENCE TransactionID_Seq;
+DROP SEQUENCE CustomerID_Seq;
+
+/****************/
+/*Drop Triggers*/
+/**************/
+
+DROP TRIGGER Transactionlogs_trig;
+DROP TRIGGER Customerlogs_trig;
+
+/*************/
+/*Drop Views*/
+/***********/
+
+DROP VIEW Vw_DVDs;
+DROP VIEW Vw_Books;
+DROP VIEW Vw_UMUCLibraryBranches;
+DROP VIEW Vw_BaltimoreCountyBranches;
+DROP VIEW Vw_NewYorkPublicLibraryBranches;
+
+/**************/
+/*Drop Tables*/
+/************/
+
+DROP TABLE TransactionID CASCADE CONSTRAINT; 
+DROP TABLE CustomerID CASCADE CONSTRAINT; 
+DROP TABLE Transaction CASCADE CONSTRAINT;
+DROP TABLE BranchItem CASCADE CONSTRAINT;
+DROP TABLE CatalogItem CASCADE CONSTRAINT;
+DROP TABLE LibraryCard CASCADE CONSTRAINT;
+DROP TABLE Branch CASCADE CONSTRAINT;
+DROP TABLE Library CASCADE CONSTRAINT;
+DROP TABLE Customer CASCADE CONSTRAINT;
+
+/****************/
+/*Create Tables*/
+/**************/
+
+CREATE TABLE Customer (
+	CustomerID NUMBER(8) NOT NULL PRIMARY KEY, 
+	C_First_Name VARCHAR2(25) NOT NULL,
+	C_Last_Name VARCHAR2(25) NOT NULL, 
+	C_Street VARCHAR2(25) NOT NULL, 
+	C_City VARCHAR2(25) NOT NULL, 
+	C_State VARCHAR2(25) NOT NULL, 
+	C_Zip NUMBER(8) NOT NULL);
+	DESCRIBE Customer;
+
+CREATE TABLE Library (
+	LibraryID NUMBER(8) NOT NULL PRIMARY KEY, 
+	L_Name VARCHAR(25) NOT NULL,
+	L_Phone VARCHAR2(25) NOT NULL,
+	L_Address VARCHAR2(30) NOT NULL);
+	DESCRIBE Library;
+
+CREATE TABLE Branch (
+	BranchID NUMBER(8) NOT NULL PRIMARY KEY, 
+	B_Name VARCHAR2(25) NOT NULL, 
+	B_Phone VARCHAR2(25) NOT NULL, 
+	B_Address VARCHAR2(30) NOT NULL, 
+	B_System NUMBER(8) NOT NULL);
+	DESCRIBE Branch;
+
+CREATE TABLE LibraryCard (
+	Library_CardID NUMBER(8) NOT NULL PRIMARY KEY, 
+	LC_Number NUMBER(8) NOT NULL, 
+	LC_Pin NUMBER(8) NOT NULL, 
+	LC_Expiration DATE NOT NULL, 
+	LC_Issue_Library NUMBER(8) NOT NULL);
+	DESCRIBE LibraryCard;
+
+CREATE TABLE CatalogItem (
+	Catalog_ItemID NUMBER(8) NOT NULL PRIMARY KEY, 
+	CI_Type VARCHAR2(25) NOT NULL, 
+	CI_Title VARCHAR2(25) NOT NULL, 
+	CI_Publisher VARCHAR2(25) NOT NULL, 
+	CI_Description VARCHAR2(25) NOT NULL, 
+	CI_Release_Date DATE NOT NULL, 
+	CI_Book_ISBN NUMBER(15), 
+	CI_Book_Pages NUMBER(8),
+	CI_DVD_Length VARCHAR2(25));
+	DESCRIBE CatalogItem;
+
+CREATE TABLE BranchItem (
+	Branch_ItemID NUMBER(8) NOT NULL PRIMARY KEY, 
+	BI_Location NUMBER(8) NOT NULL,
+	BI_Catalog_Item NUMBER(8) NOT NULL, 
+	BI_Copy_Num NUMBER(8) NOT NULL, 
+	BI_Purchase_Date DATE NOT NULL);
+	DESCRIBE BranchItem;
+
+CREATE TABLE Transaction (
+	TransactionID NUMBER(8) NOT NULL PRIMARY KEY, 
+	T_Branch_ItemID NUMBER(8) NOT NULL, 
+	T_CustomerID NUMBER(8) NOT NULL,
+	T_Checkout_Date DATE NOT NULL, 
+	T_Due_Date DATE NOT NULL, 
+	T_Returned_Date DATE);
+	DESCRIBE Transaction;
+
+/***************************/
+/*Estblishing Foreign Keys*/
+/*************************/
+
+ALTER TABLE Transaction ADD FOREIGN KEY (T_Branch_ItemID) REFERENCES BranchItem(Branch_ItemID);
+ALTER TABLE Transaction ADD FOREIGN KEY (T_CustomerID) REFERENCES Customer(CustomerID);
+ALTER TABLE BranchItem ADD FOREIGN KEY (BI_Catalog_Item) REFERENCES CatalogItem(Catalog_ItemID);
+ALTER TABLE BranchItem ADD FOREIGN KEY (BI_Location) REFERENCES Branch(BranchID);
+ALTER TABLE LibraryCard ADD FOREIGN KEY (LC_Issue_Library) REFERENCES Library(LibraryID);
+ALTER TABLE LibraryCard ADD FOREIGN KEY (LC_Number) REFERENCES Customer(CustomerID);
+ALTER TABLE Branch ADD FOREIGN KEY (B_System) REFERENCES Library(LibraryID);
+
+/******************/
+/*Insert Customer*/
+/****************/
+
+INSERT INTO Customer (CustomerID, C_First_Name, C_Last_Name, C_Street, C_City, C_State, C_Zip)
+VALUES (1, 'Christian', 'Walker', '96 Clark Drive', 'Hicksvile', 'NY', 11801);
+
+INSERT INTO Customer (CustomerID, C_First_Name, C_Last_Name, C_Street, C_City, C_State, C_Zip)
+VALUES (2, 'Deena', 'Pilgram', '838 Orange Street', 'Frederick', 'MD', 21701);
+
+INSERT INTO Customer (CustomerID, C_First_Name, C_Last_Name, C_Street, C_City, C_State, C_Zip)
+VALUES (3, 'Calista', 'Secor', '9330 El Dorado Lane', 'Temple Hills', 'MD', 20748);
+
+INSERT INTO Customer (CustomerID, C_First_Name, C_Last_Name, C_Street, C_City, C_State, C_Zip)
+VALUES (4, 'Emile', 'Cross', '387 Circle Ave', 'Vincentown', 'NJ', 08088);
+
+INSERT INTO Customer (CustomerID, C_First_Name, C_Last_Name, C_Street, C_City, C_State, C_Zip)
+VALUES (5, 'Johnny', 'Royalle', '9948 Campfire Drive', 'East Elmhurst', 'NY', 11369);
+
+INSERT INTO Customer (CustomerID, C_First_Name, C_Last_Name, C_Street, C_City, C_State, C_Zip)
+VALUES (6, 'Harley', 'Cohen', '96 Vine Street', 'Bowie', 'MD', 20715);
+
+SELECT * FROM Customer;
+
+/*****************/
+/*Insert Library*/
+/***************/
+
+INSERT INTO Library (LibraryID, L_Name, L_Phone, L_Address)
+VALUES (500, 'New York Public Library', '212-555-1234', '476 5th Avenue, New York, NY');
+
+INSERT INTO Library (LibraryID, L_Name, L_Phone, L_Address)
+VALUES (501, 'Baltimore County Library', '443-555-3456', '320 York Road, Towson, MD');
+
+INSERT INTO Library (LibraryID, L_Name, L_Phone, L_Address)
+VALUES (502, 'UMUC Library', '240-684-2020', '1616 McCormick Dr, Largo, MD');
+
+SELECT * FROM Library;
+
+
+/***************/
+/*Insert Branch*/
+/**************/
+
+INSERT INTO Branch (BranchID, B_Name, B_Phone, B_Address, B_System)
+VALUES (101, '125th Street Library', '212-555-2345', '224 E 125th St, New York, NY', 500);
+
+INSERT INTO Branch (BranchID, B_Name, B_Phone, B_Address, B_System)
+VALUES (102, 'Grand Central Library', '212-555-3456', '135 E 46th St, New York, NY', 500);
+
+INSERT INTO Branch (BranchID, B_Name, B_Phone, B_Address, B_System)
+VALUES (201, 'Essex Branch', '443-555-4567', '1100 Eastern Blvd, Essex, MD', 501);
+
+INSERT INTO Branch (BranchID, B_Name, B_Phone, B_Address, B_System)
+VALUES (202, 'Woodlawn Branch', '443-555-5678', '1811 Woodlawn Dr, Woodlawn, MD', 501);
+
+INSERT INTO Branch (BranchID, B_Name, B_Phone, B_Address, B_System)
+VALUES (301, 'UMUC Library Largo', '240-684-2020', '1616 McCormick Dr, Largo, MD', 502);
+
+INSERT INTO Branch (BranchID, B_Name, B_Phone, B_Address, B_System)
+VALUES (302, 'McKeldin Library', '301-405-9046', 'UMD, College Park, MD', 502);
+
+SELECT * FROM Branch;
+
+/*********************/
+/*Insert LibraryCard*/
+/*******************/
+
+INSERT INTO LibraryCard (Library_CardID, LC_Number, LC_Pin, LC_Expiration, LC_Issue_Library)
+VALUES (16777216, 1, 1234, TO_DATE('31-DEC-2019 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), 500); 
+
+INSERT INTO LibraryCard (Library_CardID, LC_Number, LC_Pin, LC_Expiration, LC_Issue_Library)
+VALUES (10485760, 2, 8888, TO_DATE('29-FEB-2020 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), 501);
+
+INSERT INTO LibraryCard (Library_CardID, LC_Number, LC_Pin, LC_Expiration, LC_Issue_Library)
+VALUES (20971520, 3, 0911, TO_DATE('17-MAY-2021 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), 501);
+
+INSERT INTO LibraryCard (Library_CardID, LC_Number, LC_Pin, LC_Expiration, LC_Issue_Library)
+VALUES (16384512, 4, 8192, TO_DATE('15-FEB-2020 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), 502);
+
+INSERT INTO LibraryCard (Library_CardID, LC_Number, LC_Pin, LC_Expiration, LC_Issue_Library)
+VALUES (32768256, 5, 8008, TO_DATE('11-MAR-2020 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), 502);
+
+INSERT INTO LibraryCard (Library_CardID, LC_Number, LC_Pin, LC_Expiration, LC_Issue_Library)
+VALUES (65536128, 6, 4711, TO_DATE('09-OCT-2019 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), 502);
+
+SELECT * FROM LibraryCard;
+
+/*********************/
+/*Insert CatalogItem*/
+/*******************/
+
+INSERT INTO CatalogItem (Catalog_ItemID, CI_Type, CI_Title, CI_Publisher, CI_Description, CI_Release_Date, CI_Book_ISBN, CI_Book_Pages, CI_DVD_Length)
+VALUES (900, 'Book', 'Way of Kings', 'Tor Books', 'Fantasy', TO_DATE('31-AUG-2020 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), 9780765365279, 1280, NULL);
+
+INSERT INTO CatalogItem (Catalog_ItemID, CI_Type, CI_Title, CI_Publisher, CI_Description, CI_Release_Date, CI_Book_ISBN, CI_Book_Pages, CI_DVD_Length)
+VALUES (910, 'Book', 'Words of Radiance', 'Tor Books', 'Fantasy', TO_DATE('04-MAR-2014 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), 9780765365286, 1328, NULL);
+
+INSERT INTO CatalogItem (Catalog_ItemID, CI_Type, CI_Title, CI_Publisher, CI_Description, CI_Release_Date, CI_Book_ISBN, CI_Book_Pages, CI_DVD_Length)
+VALUES (920, 'DVD', 'Inception', 'Warner Bros', 'Science Fiction/Thriller', TO_DATE('08-JUL-2010 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), NULL, NULL, '2:28');
+
+INSERT INTO CatalogItem (Catalog_ItemID, CI_Type, CI_Title, CI_Publisher, CI_Description, CI_Release_Date, CI_Book_ISBN, CI_Book_Pages, CI_DVD_Length)
+VALUES (930, 'Book', 'Infinite Jest', 'Brown, Little, and Co.', 'Tragicomedy', TO_DATE('01-FEB-1996 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), 9780316066525, 1079, NULL);
+
+INSERT INTO CatalogItem (Catalog_ItemID, CI_Type, CI_Title, CI_Publisher, CI_Description, CI_Release_Date, CI_Book_ISBN, CI_Book_Pages, CI_DVD_Length)
+VALUES (940, 'DVD', 'La La Land', 'Summit Entertainment', 'Musical', TO_DATE('09-DEC-2016 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), NULL, NULL, '2:08');
+
+INSERT INTO CatalogItem (Catalog_ItemID, CI_Type, CI_Title, CI_Publisher, CI_Description, CI_Release_Date, CI_Book_ISBN, CI_Book_Pages, CI_DVD_Length)
+VALUES (950, 'DVD', 'Moonrise Kingdom', 'Focus Features', 'Drama Comedy', TO_DATE('25-MAY-2012 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), NULL, NULL, '1:34');
+
+INSERT INTO CatalogItem (Catalog_ItemID, CI_Type, CI_Title, CI_Publisher, CI_Description, CI_Release_Date, CI_Book_ISBN, CI_Book_Pages, CI_DVD_Length)
+VALUES (960, 'Book', 'The Name of the Wind', 'DAW Books', 'Fantasy', TO_DATE('27-MAR-2007 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), 9780756404079, 722, NULL);
+
+INSERT INTO CatalogItem (Catalog_ItemID, CI_Type, CI_Title, CI_Publisher, CI_Description, CI_Release_Date, CI_Book_ISBN, CI_Book_Pages, CI_DVD_Length)
+VALUES (970, 'DVD', 'The Social Network', 'Columbia Pictures', 'Drama', TO_DATE('01-OCT-2010 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), NULL, NULL, '2:01');
+
+SELECT * FROM CatalogItem;
+
+/********************/
+/*Insert BranchItem*/
+/******************/
+
+--Items Available at 125th Street Library Branch
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1019001, 101, 900, 1, TO_DATE('01-FEB-2011 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1019002, 101, 900, 2, TO_DATE('15-MAR-2012 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1019101, 101, 910, 1, TO_DATE('04-MAR-2014 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1019102, 101, 910, 2, TO_DATE('04-MAR-2014 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1019301, 101, 930, 1, TO_DATE('01-FEB-2011 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1019302, 101, 930, 2, TO_DATE('01-FEB-2011 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1019303, 101, 930, 3, TO_DATE('09-OCT-2015 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1019601, 101, 960, 1, TO_DATE('01-FEB-2011 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1019602, 101, 960, 2, TO_DATE('15-APR-2015 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1019603, 101, 960, 3, TO_DATE('20-DEC-2014 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1019604, 101, 960, 4, TO_DATE('20-DEC-2014 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1019605, 101, 960, 5, TO_DATE('20-DEC-2014 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+--Items Available at Grand Central Library Branch
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1029201, 102, 920, 1, TO_DATE('08-JUL-2011 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1029202, 102, 920, 2, TO_DATE('08-JUL-2011 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1029203, 102, 920, 3, TO_DATE('08-JUL-2011 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1029401, 102, 940, 1, TO_DATE('01-MAR-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1029501, 102, 950, 1, TO_DATE('12-DEC-2013 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1029601, 102, 960, 1, TO_DATE('14-JAN-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1029701, 102, 970, 1, TO_DATE('01-OCT-2011 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1029702, 102, 970, 2, TO_DATE('01-OCT-2011 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (1029703, 102, 970, 3, TO_DATE('01-OCT-2011 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+
+--Items Available at Essex Branch Library Branch
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2019001, 201, 900, 1, TO_DATE('14-JUN-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2019002, 201, 900, 2, TO_DATE('14-JUN-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2019101, 201, 910, 1, TO_DATE('14-JUN-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2019102, 201, 910, 2, TO_DATE('14-JUN-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2019201, 201, 920, 1, TO_DATE('14-JUN-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2019301, 201, 930, 1, TO_DATE('14-JUN-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2019401, 201, 940, 1, TO_DATE('14-JUN-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2019501, 201, 950, 1, TO_DATE('14-JUN-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2019601, 201, 960, 1, TO_DATE('14-JUN-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2019602, 201, 960, 2, TO_DATE('14-JUN-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2019603, 201, 960, 3, TO_DATE('14-JUN-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2019701, 201, 970, 1, TO_DATE('14-JUN-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+
+--Items Available at Woodlawn Branch Library Branch
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2029001, 202, 900, 1, TO_DATE('03-MAR-2011 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2029101, 202, 910, 1, TO_DATE('19-AUG-2014 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2029201, 202, 920, 1, TO_DATE('19-AUG-2014 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2029202, 202, 920, 2, TO_DATE('21-SEP-2015 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2029203, 202, 920, 3, TO_DATE('21-SEP-2015 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2029301, 202, 930, 1, TO_DATE('25-NOV-2014 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2029302, 202, 930, 2, TO_DATE('23-FEB-2015 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2029401, 202, 940, 1, TO_DATE('12-DEC-2016 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2029501, 202, 950, 1, TO_DATE('15-MAY-2015 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (2029701, 202, 970, 1, TO_DATE('15-SEP-2014 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+
+--Items Available at UMUC Library Largo Library Branch 
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (3019001, 301, 900, 1, TO_DATE('11-SEP-2011 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (3019101, 301, 910, 1, TO_DATE('12-JAN-2015 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (3019201, 301, 920, 1, TO_DATE('09-SEP-2012 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (3019202, 301, 920, 2, TO_DATE('09-SEP-2012 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (3019203, 301, 920, 3, TO_DATE('14-JUL-2014 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (3019204, 301, 920, 4, TO_DATE('19-OCT-2016 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (3019301, 301, 930, 1, TO_DATE('20-JAN-2013 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (3019302, 301, 930, 2, TO_DATE('05-FEB-2015 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (3019401, 301, 940, 1, TO_DATE('11-JUL-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (3019501, 301, 950, 1, TO_DATE('11-JUL-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (3019601, 301, 960, 1, TO_DATE('09-APR-2016 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (3019701, 301, 970, 1, TO_DATE('17-DEC-2015 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+--Items Available at McKeldin Library Branch 
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (3029001, 302, 900, 1, TO_DATE('08-MAR-2016 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (3029101, 302, 910, 1, TO_DATE('12-JUL-2016 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (3029301, 302, 930, 1, TO_DATE('01-DEC-2016 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO BranchItem (Branch_ItemID, BI_Location, BI_Catalog_Item, BI_Copy_Num, BI_Purchase_Date)
+VALUES (3029601, 302, 960, 1, TO_DATE('14-JAN-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+SELECT * FROM BranchItem;
+
+/*********************/
+/*Insert Transaction*/
+/*******************/
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (1, 1019001, 1, TO_DATE('02-FEB-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('02-MAR-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('28-FEB-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (2, 1019002, 1, TO_DATE('28-FEB-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('28-MAR-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('01-APR-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (3, 1029201, 1, TO_DATE('01-APR-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('01-MAY-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('03-APR-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (4, 1029703, 1, TO_DATE('03-APR-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('03-MAY-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('30-APR-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (5, 1019001, 4, TO_DATE('03-MAR-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('03-APR-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('28-MAR-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (6, 1019101, 4, TO_DATE('12-DEC-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('12-JAN-2018 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), NULL);
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (7, 1019102, 4, TO_DATE('12-DEC-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('12-JAN-2018 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), NULL);
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (8, 2019001, 2, TO_DATE('14-JUL-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('14-AUG-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('20-AUG-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (9, 2019002, 2, TO_DATE('20-AUG-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('20-SEP-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('19-SEP-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (10, 2019601, 2, TO_DATE('19-SEP-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('19-OCT-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('21-SEP-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (11, 2029701, 2, TO_DATE('21-SEP-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('21-OCT-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), NULL);
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (12, 2029701, 3, TO_DATE('12-MAY-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('12-JUN-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('31-MAY-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (13, 2029501, 3, TO_DATE('12-MAY-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('12-JUN-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('31-MAY-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (14, 2029401, 3, TO_DATE('12-MAY-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('12-JUN-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('31-MAY-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (15, 3019401, 5, TO_DATE('11-NOV-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('11-DEC-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('09-DEC-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (16, 3019201, 5, TO_DATE('09-DEC-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('09-JAN-2018 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), NULL);
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (17, 3019401, 5, TO_DATE('12-DEC-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('12-JAN-2018 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('20-DEC-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (18, 3019401, 4, TO_DATE('14-JUL-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('14-AUG-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('20-JUL-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (19, 3019701, 4, TO_DATE('21-JUL-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('21-AUG-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('22-JUL-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (20, 1019101, 4, TO_DATE('12-OCT-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('12-NOV-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('22-OCT-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+INSERT INTO Transaction (TransactionID, T_Branch_ItemID, T_CustomerID, T_Checkout_Date, T_Due_Date, T_Returned_Date) 
+VALUES (21, 1019102, 4, TO_DATE('10-OCT-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('10-NOV-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'), TO_DATE('22-OCT-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS'));
+
+SELECT * FROM Transaction;
+
+/*****************/
+/*Create Indexes*/
+/***************/
+
+CREATE INDEX IDX_Customer_Transaction
+on Transaction (T_CustomerID);
+DESCRIBE IDX_Customer_Transaction;
+
+CREATE INDEX IDX_Branch_Library
+on Branch (B_System);
+DESCRIBE IDX_Branch_Library;
+
+CREATE INDEX IDX_Customer_Library_Card
+on LibraryCard (LC_Number);
+DESCRIBE IDX_Customer_Library_Card;
+
+/***************/
+/*Create Views*/
+/*************/
+
+CREATE OR REPLACE VIEW Vw_NewYorkPublicLibraryBranches AS
+    SELECT * 
+    FROM Branch 
+    WHERE B_System = 500;
+DESCRIBE Vw_NewYorkPublicLibraryBranches;
+
+CREATE OR REPLACE VIEW Vw_BaltimoreCountyBranches AS
+    SELECT * 
+    FROM Branch 
+    WHERE B_System = 501;
+DESCRIBE Vw_BaltimoreCountyBranches;
+
+CREATE OR REPLACE VIEW Vw_UMUCLibraryBranches AS
+    SELECT * 
+    FROM Branch 
+    WHERE B_System = 502;
+DESCRIBE Vw_UMUCLibraryBranches;
+    
+CREATE OR REPLACE VIEW Vw_Books AS
+    SELECT * 
+    FROM CatalogItem 
+    WHERE CI_Type = 'Book';
+DESCRIBE Vw_Books;
+    
+ CREATE OR REPLACE VIEW Vw_DVDs AS
+    SELECT * 
+    FROM CatalogItem 
+    WHERE CI_Type = 'DVD';
+DESCRIBE Vw_DVDs;
+
+/*******************/
+/*Create Sequences*/
+/*****************/
+
+--Sequence 1
+CREATE SEQUENCE CustomerID_seq START WITH 1 NOCACHE; 
+
+CREATE TABLE CustomerID (
+	CustomerID NUMBER(8), 
+	C_First_Name VARCHAR2(25));
+
+INSERT INTO CustomerID (CustomerID, C_First_Name) VALUES (CustomerID_seq.NEXTVAL, 'Christian'); 
+INSERT INTO CustomerID (CustomerID, C_First_Name) VALUES (CustomerID_seq.NEXTVAL, 'Deena'); 
+INSERT INTO CustomerID (CustomerID, C_First_Name) VALUES (CustomerID_seq.NEXTVAL, 'Calista'); 
+INSERT INTO CustomerID (CustomerID, C_First_Name) VALUES (CustomerID_seq.NEXTVAL, 'Emile'); 
+INSERT INTO CustomerID (CustomerID, C_First_Name) VALUES (CustomerID_seq.NEXTVAL, 'Johnny'); 
+INSERT INTO CustomerID (CustomerID, C_First_Name) VALUES (CustomerID_seq.NEXTVAL, 'Harley'); 
+
+SELECT * FROM CustomerID;
+
+--Sequence 2
+CREATE SEQUENCE TransactionID_seq START WITH 1 NOCACHE; 
+
+CREATE TABLE TransactionID (
+	TransactionID NUMBER(8));
+
+INSERT INTO TransactionID (TransactionID) VALUES (TransactionID_seq.NEXTVAL); 
+
+SELECT * FROM TransactionID;
+
+
+/******************/
+/*Create Triggers*/
+/****************/
+
+--The purpose of the following trigger is to insert a new customerID value in order
+CREATE OR REPLACE TRIGGER Customerlogs_trig
+BEFORE INSERT ON CustomerID
+FOR EACH ROW 
+    BEGIN 
+        IF :new.ID IS NULL THEN 
+        SELECT CustomerID_seq.NEXTVAL
+            INTO :new.ID
+            FROM DUAL; 
+            END IF; 
+            END;
+
+--The purpose of the following trigger is to insert a new transactionID value in order   
+CREATE OR REPLACE TRIGGER Transactionlogs_trig
+BEFORE INSERT ON TransactionID
+FOR EACH ROW 
+    BEGIN 
+        IF :new.ID IS NULL THEN 
+        SELECT TransactionID_seq.NEXTVAL
+            INTO :new.ID
+            FROM DUAL; 
+            END IF; 
+            END;
+            
+            
+            
+            
+            
+          
+          
+SAMPLE QUERIES FOR DB:
+
+--Query 1: Select all columns and all rows from one table. 
+
+SELECT * FROM CatalogItem;
+
+CATALOG_ITEMID CI_TYPE                   CI_TITLE                  CI_PUBLISHER              CI_DESCRIPTION            CI_RELEAS CI_BOOK_ISBN CI_BOOK_PAGES CI_DVD_LENGTH            
+-------------- ------------------------- ------------------------- ------------------------- ------------------------- --------- ------------ ------------- -------------------------
+           900 Book                      Way of Kings              Tor Books                 Fantasy                   31-AUG-20   9.7808E+12          1280                          
+           910 Book                      Words of Radiance         Tor Books                 Fantasy                   04-MAR-14   9.7808E+12          1328                          
+           920 DVD                       Inception                 Warner Bros               Science Fiction/Thriller  08-JUL-10                            2:28                     
+           930 Book                      Infinite Jest             Brown, Little, and Co.    Tragicomedy               01-FEB-96   9.7803E+12          1079                          
+           940 DVD                       La La Land                Summit Entertainment      Musical                   09-DEC-16                            2:08                     
+           950 DVD                       Moonrise Kingdom          Focus Features            Drama Comedy              25-MAY-12                            1:34                     
+           960 Book                      The Name of the Wind      DAW Books                 Fantasy                   27-MAR-07   9.7808E+12           722                          
+           970 DVD                       The Social Network        Columbia Pictures         Drama                     01-OCT-10                            2:01                     
+
+8 rows selected. 
+
+
+--Query 2: Select all columns and rows from one view.
+ 
+SELECT * FROM Vw_Books;
+
+CATALOG_ITEMID CI_TYPE                   CI_TITLE                  CI_PUBLISHER              CI_DESCRIPTION            CI_RELEAS CI_BOOK_ISBN CI_BOOK_PAGES CI_DVD_LENGTH            
+-------------- ------------------------- ------------------------- ------------------------- ------------------------- --------- ------------ ------------- -------------------------
+           900 Book                      Way of Kings              Tor Books                 Fantasy                   31-AUG-20   9.7808E+12          1280                          
+           910 Book                      Words of Radiance         Tor Books                 Fantasy                   04-MAR-14   9.7808E+12          1328                          
+           930 Book                      Infinite Jest             Brown, Little, and Co.    Tragicomedy               01-FEB-96   9.7803E+12          1079                          
+           960 Book                      The Name of the Wind      DAW Books                 Fantasy                   27-MAR-07   9.7808E+12           722                          
+
+
+--Query 3: Using a join on 2 tables, select all columns and all rows from the tables without the use of a Cartesian product.
+ 
+SELECT Customer.*, LibraryCard.*
+  FROM Customer
+  JOIN LibraryCard
+  ON (Customer.CustomerID = LibraryCard.LC_Number);
+
+CUSTOMERID C_FIRST_NAME              C_LAST_NAME               C_STREET                  C_CITY                    C_STATE                        C_ZIP LIBRARY_CARDID  LC_NUMBER     LC_PIN LC_EXPIRA LC_ISSUE_LIBRARY
+---------- ------------------------- ------------------------- ------------------------- ------------------------- ------------------------- ---------- -------------- ---------- ---------- --------- ----------------
+         1 Christian                 Walker                    96 Clark Drive            Hicksvile                 NY                             11801       16777216          1       1234 31-DEC-19              500
+         2 Deena                     Pilgram                   838 Orange Street         Frederick                 MD                             21701       10485760          2       8888 29-FEB-20              501
+         3 Calista                   Secor                     9330 El Dorado Lane       Temple Hills              MD                             20748       20971520          3        911 17-MAY-21              501
+         4 Emile                     Cross                     387 Circle Ave            Vincentown                NJ                              8088       16384512          4       8192 15-FEB-20              502
+         5 Johnny                    Royalle                   9948 Campfire Drive       East Elmhurst             NY                             11369       32768256          5       8008 11-MAR-20              502
+         6 Harley                    Cohen                     96 Vine Street            Bowie                     MD                             20715       65536128          6       4711 09-OCT-19              502
+
+6 rows selected. 
+
+
+--Query 4: Using a join on 3 tables, select 5 columns from the 3 tables. Use syntax that would limit the output to 10 rows.
+
+SELECT BranchItem.Branch_ItemID, Customer.C_First_Name, Customer.C_Last_Name, Transaction.T_CustomerID
+  FROM ((Transaction
+  INNER JOIN BranchItem ON Transaction.T_Branch_ItemID = BranchItem.Branch_ItemID)
+  INNER JOIN Customer ON Transaction.T_CustomerID = Customer.CustomerID)
+  WHERE ROWNUM<11;
+
+BRANCH_ITEMID C_FIRST_NAME              C_LAST_NAME               T_CUSTOMERID
+------------- ------------------------- ------------------------- ------------
+      1019001 Christian                 Walker                               1
+      1019002 Christian                 Walker                               1
+      1029201 Christian                 Walker                               1
+      1029703 Christian                 Walker                               1
+      2019001 Deena                     Pilgram                              2
+      2019002 Deena                     Pilgram                              2
+      2019601 Deena                     Pilgram                              2
+      2029701 Deena                     Pilgram                              2
+      2029701 Calista                   Secor                                3
+      2029501 Calista                   Secor                                3
+
+10 rows selected. 
+
+ 
+--Query 5: Select distinct rows using joins on 3 tables. 
+
+SELECT DISTINCT Library.LibraryID, BranchItem.BI_Catalog_Item, BranchItem.BI_Copy_Num, Branch.B_Name
+  FROM ((Branch
+  INNER JOIN Library ON Branch.B_System = Library.LibraryID)
+  INNER JOIN BranchItem ON Branch.BranchID = BranchItem.BI_Location)
+  WHERE BI_Catalog_Item = 970;
+
+ LIBRARYID BI_CATALOG_ITEM BI_COPY_NUM B_NAME                   
+---------- --------------- ----------- -------------------------
+       501             970           1 Woodlawn Branch          
+       500             970           3 Grand Central Library    
+       501             970           1 Essex Branch             
+       500             970           1 Grand Central Library    
+       500             970           2 Grand Central Library    
+       502             970           1 UMUC Library Largo       
+
+6 rows selected. 
+
+ 
+--Query 6: Use GROUP BY and HAVING in a select statement using one or more tables. 
+ 
+SELECT COUNT(CustomerID), C_State
+  FROM Customer 
+  GROUP BY C_State
+  HAVING COUNT(CustomerID)>1;
+
+COUNT(CUSTOMERID) C_STATE                  
+----------------- -------------------------
+                3 MD                       
+                2 NY                       
+
+
+--Query 7: Use IN clause to select data from one or more tables. 
+ 
+SELECT CI_Title, CI_Type, CI_Description
+  FROM CatalogItem
+  WHERE CI_Description IN ('Fantasy');
+
+CI_TITLE                  CI_TYPE                   CI_DESCRIPTION           
+------------------------- ------------------------- -------------------------
+Way of Kings              Book                      Fantasy                  
+Words of Radiance         Book                      Fantasy                  
+The Name of the Wind      Book                      Fantasy                  
+
+ 
+--Query 8: Select length of one column from one table (use LENGTH function).
+ 
+SELECT LENGTH(CI_Title) AS Length_of_Title
+  FROM CatalogItem;
+
+LENGTH_OF_TITLE
+---------------
+             12
+             17
+              9
+             13
+             10
+             16
+             20
+             18
+
+8 rows selected. 
+
+
+--Query 9: Select the customer name and transactions where the checkout date is 12 May 2017.
+
+SELECT z.C_First_Name, z.C_Last_Name, z.TransactionID, z.T_Checkout_Date, z.T_Returned_Date
+  FROM ((SELECT c.C_First_Name, c.C_Last_Name, t.TransactionID, t.T_Checkout_Date, t.T_Returned_Date
+  FROM Transaction t JOIN Customer c ON t.T_CustomerID=c.CustomerID)) z
+  WHERE z.T_Checkout_Date = TO_DATE('12-MAY-2017 12:00:00', 'DD-MON-YYYY HH24:MI:SS');
+
+C_FIRST_NAME              C_LAST_NAME               TRANSACTIONID T_CHECKOU T_RETURNE
+------------------------- ------------------------- ------------- --------- ---------
+Calista                   Secor                                12 12-MAY-17 31-MAY-17
+Calista                   Secor                                13 12-MAY-17 31-MAY-17
+Calista                   Secor                                14 12-MAY-17 31-MAY-17
+
+ 
+--Query 10: List the catalog item information and number of copies for branches that have more than 1 copy of the item. 
+
+SELECT i.BI_Catalog_Item, BI_Copy_Num, CI_Title, COUNT(CI_Title)
+  FROM BranchItem i JOIN CatalogItem s ON i.BI_Catalog_Item=s.Catalog_ItemID
+  GROUP BY i.BI_Catalog_Item, BI_Copy_Num, CI_Title
+  HAVING COUNT(CI_Title)>1;
+
+BI_CATALOG_ITEM BI_COPY_NUM CI_TITLE                  COUNT(CI_TITLE)
+--------------- ----------- ------------------------- ---------------
+            900           1 Way of Kings                            5
+            970           1 The Social Network                      4
+            900           2 Way of Kings                            2
+            960           1 The Name of the Wind                    5
+            960           2 The Name of the Wind                    2
+            960           3 The Name of the Wind                    2
+            920           3 Inception                               3
+            940           1 La La Land                              4
+            920           2 Inception                               3
+            950           1 Moonrise Kingdom                        4
+            930           2 Infinite Jest                           3
+
+BI_CATALOG_ITEM BI_COPY_NUM CI_TITLE                  COUNT(CI_TITLE)
+--------------- ----------- ------------------------- ---------------
+            920           1 Inception                               4
+            910           1 Words of Radiance                       5
+            930           1 Infinite Jest                           5
+            910           2 Words of Radiance                       2
+
+15 rows selected. 
